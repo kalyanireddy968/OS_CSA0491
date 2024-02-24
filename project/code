@@ -1,0 +1,59 @@
+import os
+import gzip
+from cryptography.fernet import Fernet
+import stat
+
+def explore_directory(path):
+    try:
+        # List all files and directories in the given path
+        contents = os.listdir(path)
+        
+        print("Contents of", path, ":")
+        for item in contents:
+            print(item)
+    except OSError as e:
+        print("Error:", e)
+
+def compress_file(source_file, compressed_file):
+    try:
+        with open(source_file, 'rb') as f_in:
+            with gzip.open(compressed_file, 'wb') as f_out:
+                f_out.writelines(f_in)
+        print("File compressed successfully.")
+    except FileNotFoundError:
+        print("Error: Source file not found.")
+
+def encrypt_file(input_file, encrypted_file):
+    try:
+        key = Fernet.generate_key()
+        cipher = Fernet(key)
+
+        with open(input_file, 'rb') as f_in:
+            data = f_in.read()
+            encrypted_data = cipher.encrypt(data)
+
+        with open(encrypted_file, 'wb') as f_out:
+            f_out.write(encrypted_data)
+
+        print("File encrypted successfully.")
+    except FileNotFoundError:
+        print("Error: Source file not found.")
+
+def set_file_permissions(file_path, permission):
+    try:
+        os.chmod(file_path, permission)
+        print("File permissions set successfully.")
+    except FileNotFoundError:
+        print("Error: File not found.")
+
+if _name_ == "_main_":
+    directory_path = "C:\\Program Files (x86)"
+    source_file = "example.txt"
+    compressed_file = "example.txt.gz"
+    encrypted_file = "example_encrypted.txt"
+    permission = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH  # Example permission (read-only for owner, read-only for group, read-only for others)
+
+    explore_directory(directory_path)
+    compress_file(source_file, compressed_file)
+    encrypt_file(source_file, encrypted_file)
+    set_file_permissions(source_file, permission)
